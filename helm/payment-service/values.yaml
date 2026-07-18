@@ -1,0 +1,47 @@
+replicaCount: 2
+
+image:
+  repository: <your-ecr-account>.dkr.ecr.us-east-1.amazonaws.com/payment-service
+  tag: latest
+  pullPolicy: Always
+
+serviceAccount:
+  name: payment-service
+  annotations:
+    eks.amazonaws.com/role-arn: ""  # Set via --set or CI/CD pipeline
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+  host: payment.kafka-lab.internal
+
+kafka:
+  bootstrapServers: ""  # Set via --set from Terraform output
+  paymentsTopic: payments
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+
+# Pod disruption budget - keep at least 1 pod running during updates
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

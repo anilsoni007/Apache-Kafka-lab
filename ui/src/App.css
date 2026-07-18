@@ -1,0 +1,148 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  min-height: 100vh;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+header h1 { font-size: 2rem; color: #f8fafc; }
+header p  { color: #94a3b8; margin-top: 4px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+section { display: flex; flex-direction: column; gap: 16px; }
+h2 { font-size: 1.25rem; color: #f1f5f9; border-bottom: 1px solid #1e293b; padding-bottom: 8px; }
+h3 { font-size: 1rem; color: #cbd5e1; margin-bottom: 12px; }
+
+/* Payment Form */
+.payment-form { background: #1e293b; border-radius: 12px; padding: 20px; }
+
+.presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.preset-btn {
+  padding: 6px 12px;
+  background: #334155;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  color: #e2e8f0;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+.preset-btn:hover:not(:disabled) { background: #475569; }
+.preset-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; color: #94a3b8; }
+input, select {
+  padding: 8px 10px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #3b82f6;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.submit-btn:hover:not(:disabled) { background: #2563eb; }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.status { margin-top: 12px; padding: 10px; border-radius: 6px; font-size: 0.85rem; }
+.status.success { background: #14532d; color: #86efac; }
+.status.error   { background: #450a0a; color: #fca5a5; }
+
+/* Recent Payments */
+.recent-payments { background: #1e293b; border-radius: 12px; padding: 16px; }
+.payment-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #0f172a;
+  font-size: 0.85rem;
+}
+.payment-row:last-child { border-bottom: none; }
+.status.processing { background: #1e3a5f; color: #93c5fd; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+.id { color: #64748b; font-family: monospace; }
+
+/* Kafka Stats */
+.kafka-stats { background: #1e293b; border-radius: 12px; padding: 16px; }
+.kafka-stats.loading { color: #64748b; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.stat { background: #0f172a; border-radius: 8px; padding: 16px; text-align: center; }
+.stat-value { font-size: 2rem; font-weight: 700; color: #3b82f6; }
+.stat-label { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+
+.top-reasons { margin-bottom: 12px; }
+.reason-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.8rem; color: #94a3b8; }
+.count { color: #f97316; font-weight: 600; }
+
+.architecture-note {
+  background: #0f172a;
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.75rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Fraud Alerts */
+.fraud-alerts { background: #1e293b; border-radius: 12px; padding: 16px; }
+.empty { color: #64748b; font-size: 0.85rem; }
+.alerts-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; }
+
+.alert-card {
+  background: #0f172a;
+  border: 1px solid #7f1d1d;
+  border-radius: 8px;
+  padding: 12px;
+}
+.alert-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.score { font-weight: 700; font-size: 0.9rem; }
+.amount { font-weight: 600; color: #f8fafc; }
+.time { font-size: 0.75rem; color: #64748b; }
+
+.alert-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8; margin-bottom: 8px; }
+.kafka-info { font-family: monospace; color: #475569; }
+
+.reasons { display: flex; flex-wrap: wrap; gap: 6px; }
+.reason-tag {
+  background: #450a0a;
+  color: #fca5a5;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: monospace;
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+}

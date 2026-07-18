@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Values.serviceAccount.name }}
+  namespace: kafka-lab
+  annotations:
+    {{- toYaml .Values.serviceAccount.annotations | nindent 4 }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-detection-service
+  namespace: kafka-lab
+  labels:
+    app: fraud-detection-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: fraud-detection-service
+  template:
+    metadata:
+      labels:
+        app: fraud-detection-service
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: fraud-detection-service
+      containers:
+        - name: fraud-detection-service
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8001
+          env:
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.kafka.bootstrapServers | quote }}
+            - name: PAYMENTS_TOPIC
+              value: {{ .Values.kafka.paymentsTopic | quote }}
+            - name: FRAUD_ALERTS_TOPIC
+              value: {{ .Values.kafka.fraudAlertsTopic | quote }}
+            - name: DLQ_TOPIC
+              value: {{ .Values.kafka.dlqTopic | quote }}
+            - name: AWS_REGION
+              value: us-east-1
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 20
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fraud-detection-service
+  namespace: kafka-lab
+spec:
+  selector:
+    app: fraud-detection-service
+  ports:
+    - port: 80
+      targetPort: 8001
+  type: {{ .Values.service.type }}

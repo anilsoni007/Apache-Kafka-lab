@@ -1,0 +1,9 @@
+variable "name"            { type = string }
+variable "vpc_id"          { type = string }
+variable "subnet_ids"      { type = list(string) }
+variable "k8s_version"     { type = string }
+variable "node_instance"   { type = string }
+variable "min_nodes"       { type = number }
+variable "max_nodes"       { type = number }
+variable "msk_cluster_arn" { type = string }
+variable "environment"     { type = string }

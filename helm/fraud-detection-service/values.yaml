@@ -1,0 +1,36 @@
+replicaCount: 2  # 2 replicas = 2 consumers in same group = parallel partition processing
+
+image:
+  repository: <your-ecr-account>.dkr.ecr.us-east-1.amazonaws.com/fraud-detection-service
+  tag: latest
+  pullPolicy: Always
+
+serviceAccount:
+  name: fraud-detection-service
+  annotations:
+    eks.amazonaws.com/role-arn: ""  # Set via CI/CD
+
+service:
+  type: ClusterIP
+  port: 8001
+
+kafka:
+  bootstrapServers: ""
+  paymentsTopic: payments
+  fraudAlertsTopic: fraud-alerts
+  dlqTopic: payments.DLQ
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+
+# Consumers scale based on Kafka lag, not CPU
+# Use KEDA (Kafka Event Driven Autoscaler) in production
+autoscaling:
+  enabled: false  # Enable with KEDA for lag-based scaling
+  minReplicas: 2
+  maxReplicas: 6  # Max = number of partitions (6)
