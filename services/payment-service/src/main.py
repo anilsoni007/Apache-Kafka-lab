@@ -36,7 +36,6 @@ async def lifespan(app: FastAPI):
         enable_idempotence=True,
         compression_type="lz4",
         linger_ms=5,
-        batch_size=32768,
     )
     await producer.start()
     logger.info("Kafka producer started")
