@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
         # Production settings
         acks="all",
         enable_idempotence=True,
-        compression_type="lz4",
+        compression_type="gzip",
         linger_ms=5,
     )
     await producer.start()
