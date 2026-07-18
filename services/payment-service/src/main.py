@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
         # Production settings
         acks="all",
         enable_idempotence=True,
-        max_in_flight_requests_per_connection=5,
+        max_in_flight=5,
         compression_type="lz4",
         linger_ms=5,
         batch_size=32768,
