@@ -82,7 +82,8 @@ async def consume_payments(producer: AIOKafkaProducer):
                 await consumer.commit()
 
             except Exception as e:
-                logger.error(f"Processing failed for {payment_id}: {e}")
+                import traceback
+                logger.error(f"Processing failed for {payment_id}: {e}\n{traceback.format_exc()}")
                 # Send to DLQ with error context
                 dlq_event = {
                     "original_event": payment,

@@ -90,6 +90,51 @@ npm start
 | Velocity attack | Click "Velocity Test" (6 rapid txns) | Alert: VELOCITY |
 | Combined fraud | $15,000 + CRYPTO | Score ~0.7, multiple reasons |
 
+## Validating the End-to-End Flow
+
+### Step 1 — Submit a payment via React UI
+Open `http://<EC2-IP>:3000`, fill in the payment form and submit. The UI polls `GET /alerts` every 3 seconds and will display any fraud alerts automatically.
+
+### Step 2 — Observe Kafka message flow (Kafka UI)
+Open `http://<EC2-IP>:8080` and check:
+- **Topics → payments** — confirm the message landed with a partition number and offset
+- **Topics → fraud-alerts** — confirm the fraud alert was produced (for fraud scenarios)
+- **Consumer Groups → fraud-detection-service** — lag should be `0`, meaning all messages were processed
+
+### Step 3 — Validate via APIs
+```bash
+# View recent fraud alerts
+curl http://localhost:8001/alerts
+
+# View fraud stats (total alerts, avg score, top reasons)
+curl http://localhost:8001/alerts/stats
+
+# Check payment service health
+curl http://localhost:8000/health
+
+# Check topic partition metadata
+curl http://localhost:8000/payments/topics/info
+```
+
+### Step 4 — Observe Kafka concepts in logs
+```bash
+# payment-service: shows partition + offset for every published message
+# same sender_account always lands on the same partition (key-based partitioning)
+docker logs apache-kafka-lab-payment-service-1 -f
+
+# fraud-detection-service: shows fraud score, reasons, and manual commit per message
+docker logs apache-kafka-lab-fraud-detection-service-1 -f
+```
+
+### What to look for
+| Observation | Kafka concept it proves |
+|---|---|
+| Same sender_account → same partition every time | Key-based partitioning |
+| Consumer group lag = 0 after processing | Manual commit working correctly |
+| Fraud alert appears in `fraud-alerts` topic | Producer chaining (consumer → producer) |
+| Failed message appears in `payments.DLQ` | DLQ pattern |
+| No duplicate messages on retry | Idempotent producer |
+
 ## Useful kubectl Commands
 
 ```bash
