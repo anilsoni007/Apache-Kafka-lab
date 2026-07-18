@@ -70,7 +70,7 @@ async def consume_payments(producer: AIOKafkaProducer):
                     }
                     await producer.send_and_wait(
                         topic=settings.fraud_alerts_topic,
-                        key=payment_id,
+                        key=payment_id.encode(),
                         value=json.dumps(alert).encode(),
                     )
                     recent_alerts.insert(0, alert)
@@ -94,6 +94,7 @@ async def consume_payments(producer: AIOKafkaProducer):
                 }
                 await producer.send(
                     topic=settings.dlq_topic,
+                    key=payment_id.encode(),
                     value=json.dumps(dlq_event).encode(),
                 )
                 await consumer.commit()  # Commit to avoid reprocessing poison pill
