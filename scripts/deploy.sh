@@ -36,16 +36,21 @@ for svc in payment-service fraud-detection-service; do
 done
 
 echo "=== Step 4: Deploy with Helm ==="
+cat > /tmp/brokers.yaml <<EOF
+kafka:
+  bootstrapServers: "${MSK_BROKERS}"
+EOF
+
 helm upgrade --install payment-service helm/payment-service \
   --namespace kafka-lab \
+  -f /tmp/brokers.yaml \
   --set image.repository="$ECR_REGISTRY/payment-service" \
-  --set kafka.bootstrapServers="$MSK_BROKERS" \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="$PAYMENT_ROLE"
 
 helm upgrade --install fraud-detection-service helm/fraud-detection-service \
   --namespace kafka-lab \
+  -f /tmp/brokers.yaml \
   --set image.repository="$ECR_REGISTRY/fraud-detection-service" \
-  --set kafka.bootstrapServers="$MSK_BROKERS" \
   --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="$FRAUD_ROLE"
 
 echo "=== Step 5: Wait for pods ==="

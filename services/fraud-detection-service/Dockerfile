@@ -7,8 +7,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY src/ .
 
-RUN useradd -m appuser && chown -R appuser /app
-USER appuser
+# Non-root user with numeric UID - required for Kubernetes runAsNonRoot
+RUN useradd -m -u 1001 appuser && chown -R appuser /app
+USER 1001
 
 EXPOSE 8001
 
