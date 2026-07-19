@@ -6,10 +6,10 @@ class MSKTokenProvider(AbstractTokenProvider):
     def __init__(self, region: str):
         self.region = region
 
-    async def fetch_token(self) -> str:
+    async def token(self) -> str:
         from aws_msk_iam_sasl_signer import MSKAuthTokenProvider
-        token, _ = MSKAuthTokenProvider.generate_auth_token(self.region)
-        return token
+        t, _ = MSKAuthTokenProvider.generate_auth_token(self.region)
+        return t
 
 
 class Settings(BaseSettings):
