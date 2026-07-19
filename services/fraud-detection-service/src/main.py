@@ -1,6 +1,7 @@
 import json
 import asyncio
 import logging
+import ssl
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 
@@ -27,6 +28,7 @@ def make_kafka_client_kwargs() -> dict:
         kwargs.update({
             "sasl_mechanism": "OAUTHBEARER",
             "sasl_oauth_token_provider": settings.get_msk_token_provider(),
+            "ssl_context": ssl.create_default_context(),
         })
     return kwargs
 

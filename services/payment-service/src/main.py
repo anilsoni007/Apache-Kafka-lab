@@ -1,6 +1,7 @@
 import uuid
 import json
 import logging
+import ssl
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI):
         **({
             "sasl_mechanism": "OAUTHBEARER",
             "sasl_oauth_token_provider": settings.get_msk_token_provider(),
+            "ssl_context": ssl.create_default_context(),
         } if is_msk else {}),
         value_serializer=lambda v: json.dumps(v).encode(),
         key_serializer=lambda k: k.encode() if k else None,
