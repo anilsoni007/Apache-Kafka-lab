@@ -48,6 +48,8 @@ spec:
               value: {{ .Values.kafka.dlqTopic | quote }}
             - name: AWS_REGION
               value: us-east-1
+            - name: KAFKA_SECURITY_PROTOCOL
+              value: SASL_SSL
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
