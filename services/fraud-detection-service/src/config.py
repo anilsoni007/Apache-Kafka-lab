@@ -1,13 +1,15 @@
 from pydantic_settings import BaseSettings
+from aiokafka.abc import AbstractTokenProvider
 
 
-class MSKTokenProvider:
+class MSKTokenProvider(AbstractTokenProvider):
     def __init__(self, region: str):
         self.region = region
 
-    def token(self) -> tuple[str, float]:
+    async def fetch_token(self) -> str:
         from aws_msk_iam_sasl_signer import MSKAuthTokenProvider
-        return MSKAuthTokenProvider.generate_auth_token(self.region)
+        token, _ = MSKAuthTokenProvider.generate_auth_token(self.region)
+        return token
 
 
 class Settings(BaseSettings):

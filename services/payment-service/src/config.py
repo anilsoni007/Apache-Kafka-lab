@@ -1,18 +1,15 @@
 from pydantic_settings import BaseSettings
+from aiokafka.abc import AbstractTokenProvider
 
 
-class MSKTokenProvider:
-    """
-    Provides short-lived IAM tokens for MSK authentication.
-    Uses the pod's IRSA role automatically via boto3 credential chain.
-    Token is refreshed before expiry by aiokafka.
-    """
+class MSKTokenProvider(AbstractTokenProvider):
     def __init__(self, region: str):
         self.region = region
 
-    def token(self) -> tuple[str, float]:
+    async def fetch_token(self) -> str:
         from aws_msk_iam_sasl_signer import MSKAuthTokenProvider
-        return MSKAuthTokenProvider.generate_auth_token(self.region)
+        token, _ = MSKAuthTokenProvider.generate_auth_token(self.region)
+        return token
 
 
 class Settings(BaseSettings):
