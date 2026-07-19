@@ -5,13 +5,14 @@ environment        = "dev"
 vpc_cidr           = "10.0.0.0/16"
 availability_zones = ["us-east-1a", "us-east-1b", "us-east-1c"]
 
-# MSK - t3.small is cheapest for learning (~$0.07/hr per broker)
-kafka_version       = "3.5.1"
-msk_broker_instance = "kafka.t3.small"
-msk_broker_count    = 3
+# Profile: 'sandbox' (default) or 'production'
+# sandbox    → kafka.t3.small, 2 brokers, 10GB EBS, t3.small nodes, 1-2 nodes (~$5/day)
+# production → kafka.m5.large, 3 brokers, 100GB EBS, t3.medium nodes, 2-4 nodes (~$13/day)
+env_profile = "sandbox"
 
-# EKS
-k8s_version       = "1.29"
-eks_node_instance = "t3.medium"
-eks_min_nodes     = 2
-eks_max_nodes     = 4
+# Optional: override specific values from the profile
+# msk_broker_instance = "kafka.t3.small"
+# msk_broker_count    = 2
+
+kafka_version = "3.9.x"
+k8s_version   = "1.31"

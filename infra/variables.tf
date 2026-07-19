@@ -16,6 +16,16 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "env_profile" {
+  description = "Deployment profile: 'sandbox' (cheap, single-AZ, minimal config) or 'production' (HA, multi-AZ)"
+  type        = string
+  default     = "sandbox"
+  validation {
+    condition     = contains(["sandbox", "production"], var.env_profile)
+    error_message = "env_profile must be 'sandbox' or 'production'."
+  }
+}
+
 variable "vpc_cidr" {
   description = "VPC CIDR block"
   type        = string
@@ -32,26 +42,26 @@ variable "availability_zones" {
 variable "kafka_version" {
   description = "Apache Kafka version"
   type        = string
-  default     = "3.5.1"
+  default     = "3.9.x"
 }
 
 variable "msk_broker_instance" {
-  description = "MSK broker instance type"
+  description = "MSK broker instance type (overrides env_profile default)"
   type        = string
-  default     = "kafka.t3.small" # Use kafka.m5.large for production
+  default     = ""
 }
 
 variable "msk_broker_count" {
-  description = "Number of brokers (must be multiple of AZ count)"
+  description = "Number of brokers (overrides env_profile default)"
   type        = number
-  default     = 3
+  default     = 0
 }
 
 # EKS
 variable "k8s_version" {
   description = "Kubernetes version"
   type        = string
-  default     = "1.29"
+  default     = "1.31"
 }
 
 variable "eks_node_instance" {

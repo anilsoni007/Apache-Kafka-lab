@@ -49,7 +49,6 @@ resource "aws_msk_configuration" "this" {
     num.partitions=6
     log.retention.hours=168
     log.segment.bytes=1073741824
-    log.retention.check.interval.ms=300000
     num.recovery.threads.per.data.dir=1
     offsets.topic.replication.factor=3
     transaction.state.log.replication.factor=3
@@ -70,7 +69,7 @@ resource "aws_msk_cluster" "this" {
 
     storage_info {
       ebs_storage_info {
-        volume_size = 100 # GB per broker
+        volume_size = var.ebs_volume_size
       }
     }
   }
@@ -85,7 +84,6 @@ resource "aws_msk_cluster" "this" {
     sasl {
       iam = true
     }
-    tls {}
   }
 
   encryption_info {
@@ -96,7 +94,7 @@ resource "aws_msk_cluster" "this" {
   }
 
   # Enable enhanced monitoring for CloudWatch metrics
-  enhanced_monitoring = "PER_TOPIC_PER_BROKER"
+  enhanced_monitoring = var.monitoring_level
 
   open_monitoring {
     prometheus {
@@ -122,36 +120,5 @@ resource "aws_cloudwatch_log_group" "msk" {
   retention_in_days = 7
 }
 
-# Kafka topics - created via Terraform for GitOps
-resource "aws_msk_topic" "payments" {
-  cluster_arn        = aws_msk_cluster.this.arn
-  topic_name         = "payments"
-  partitions         = 6  # Allows 6 parallel consumers
-  replication_factor = 3
-  config = {
-    "retention.ms"    = "604800000" # 7 days
-    "cleanup.policy"  = "delete"
-  }
-}
-
-resource "aws_msk_topic" "fraud_alerts" {
-  cluster_arn        = aws_msk_cluster.this.arn
-  topic_name         = "fraud-alerts"
-  partitions         = 3
-  replication_factor = 3
-  config = {
-    "retention.ms"   = "2592000000" # 30 days - fraud data kept longer
-    "cleanup.policy" = "delete"
-  }
-}
-
-resource "aws_msk_topic" "payments_dlq" {
-  cluster_arn        = aws_msk_cluster.this.arn
-  topic_name         = "payments.DLQ"
-  partitions         = 3
-  replication_factor = 3
-  config = {
-    "retention.ms"   = "2592000000" # 30 days for investigation
-    "cleanup.policy" = "delete"
-  }
-}
+# Kafka topics - created via a Kubernetes Job inside EKS (avoids local-exec OS dependency)
+# The job runs kafka-topics.sh from within the cluster where MSK is reachable
